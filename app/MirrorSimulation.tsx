@@ -142,7 +142,7 @@ export default function MirrorSimulation() {
 
     const drawLightRays = () => {
       let objectTop = { x: objectX, y: 118.56 + objectYOffset };
-      let shadowTop = { x: sPrima, y: hPrima };
+      let shadowTop = { x: sPrima, y: hPrima - 118.56 * -M };
 
       drawLine(objectTop.x, objectTop.y, 0, objectTop.y, "red", 1);
       drawLine(0, objectTop.y, shadowTop.x, shadowTop.y, "red", 1);
