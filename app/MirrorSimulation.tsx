@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import coords from "./data.json";
+import useSimulationStore from "./hooks/useSimulationStore";
 import InputPanel from "./InputPanel";
 
 interface Coord {
@@ -11,13 +12,16 @@ interface Coord {
 
 export default function MirrorSimulation() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const canvasWidth: number = 1280;
-  const canvasHeight: number = 720;
-  const objectYOffset: number = 210;
-
-  const [objectX, setObjectX] = useState<number>(-150);
-  const [objectHeight, setObjectHeight] = useState<number>(150);
-  const [focalPoint, setFocalPoint] = useState<number>(-150);
+  const {
+    objectX,
+    objectHeight,
+    focalPoint,
+    showLightRay,
+    canvasWidth,
+    canvasHeight,
+    objectYOffset,
+    showLabel,
+  } = useSimulationStore();
 
   const getCanvasXCenter = (): number => canvasWidth / 2;
   const getCanvasYCenter = (): number => canvasHeight / 2;
@@ -55,9 +59,8 @@ export default function MirrorSimulation() {
       20,
       30
     );
-    ctx.fillText(`Magnification: ${M.toFixed(2)}×`, 20, 50);
+    ctx.fillText(`Magnification: ${Math.abs(M).toFixed(2)}×`, 20, 50);
     ctx.fillText(`Image Type: ${sPrima > 0 ? "Virtual" : "Real"}`, 20, 70);
-    // ctx.fillText(`Image Orientation: ${imageHeight * objectHeight < 0 ? "Inverted" : "Upright"}`, 20, 110)
 
     const drawLine = (
       startX: number,
@@ -75,14 +78,24 @@ export default function MirrorSimulation() {
       ctx.stroke();
     };
 
-    const drawText = (
-      text: string,
-      x: number,
-      y: number,
-      color: string = "black"
-    ) => {
-      ctx.fillStyle = color;
-      ctx.fillText(text, x + getCanvasXCenter(), -y + getCanvasYCenter());
+    const drawTexts = () => {
+      const drawText = (
+        text: string,
+        x: number,
+        y: number,
+        color: string = "black"
+      ) => {
+        ctx.fillStyle = color;
+        ctx.fillText(text, x + getCanvasXCenter(), -y + getCanvasYCenter());
+      };
+      drawText("Object", objectX - 15, objectYOffset - 200);
+      if (sPrima <= 0) {
+        drawText("Real Image", sPrima - 25, objectYOffset - 200);
+      } else {
+        drawText("Virtual Image", sPrima - 30, objectYOffset - 200);
+      }
+      drawText("F", focalPoint - 3, -15);
+      drawText("2F", focalPoint * 2 - 3, -15);
     };
 
     const drawCircle = (
@@ -110,8 +123,6 @@ export default function MirrorSimulation() {
           );
         }
       });
-
-      drawText("Object", objectX - 15, objectYOffset - 200);
     };
 
     const drawObjectImage = () => {
@@ -127,12 +138,6 @@ export default function MirrorSimulation() {
           );
         }
       });
-
-      if (sPrima <= 0) {
-        drawText("Real Image", sPrima - 25, objectYOffset - 200);
-      } else {
-        drawText("Virtual Image", sPrima - 30, objectYOffset - 200);
-      }
     };
 
     const drawLightRays = () => {
@@ -148,20 +153,19 @@ export default function MirrorSimulation() {
 
     const drawFocalPoint = () => {
       drawCircle(focalPoint, getCanvasYCenter(), 5, "green");
-      drawText("F", focalPoint - 3, -15);
     };
 
     const drawMirrorVertex = () => {
       drawCircle(focalPoint * 2, getCanvasYCenter(), 5, "purple");
-      drawText("2F", focalPoint * 2 - 3, -15);
     };
 
     drawObject();
     drawObjectImage();
-    drawLightRays();
     drawFocalPoint();
     drawMirrorVertex();
-  }, [objectX, objectHeight, focalPoint]);
+    if (showLightRay) drawLightRays();
+    if (showLabel) drawTexts();
+  }, [objectX, objectHeight, focalPoint, showLightRay, showLabel]);
 
   useEffect(() => {
     draw();
@@ -175,15 +179,7 @@ export default function MirrorSimulation() {
         height={canvasHeight}
         className="w-full relative bg-white border rounded-lg shadow-md mt-2"
       />
-      <InputPanel
-        objectX={objectX}
-        setObjectX={setObjectX}
-        objectHeight={objectHeight}
-        setObjectHeight={setObjectHeight}
-        focalPoint={focalPoint}
-        setFocalPoint={setFocalPoint}
-        canvasWidth={canvasWidth}
-      />
+      <InputPanel />
     </div>
   );
 }
