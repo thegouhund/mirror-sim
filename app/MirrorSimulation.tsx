@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import coords from "./data.json";
-import useSimulationStore from "./hooks/useSimulationStore";
-import InputPanel from "./InputPanel";
 import {
   drawCircle,
   drawLine,
@@ -11,6 +9,8 @@ import {
   getCanvasXCenter,
   getCanvasYCenter,
 } from "./Helper";
+import useSimulationStore from "./hooks/useSimulationStore";
+import InputPanel from "./InputPanel";
 
 export interface Coords {
   x: number;
@@ -44,7 +44,7 @@ export default function MirrorSimulation() {
 
     const sPrima = 1 / (1 / focalPoint - 1 / objectX);
     const M = -sPrima / objectX;
-    const hPrima = M * objectYOffset;
+    // const hPrima = M * objectYOffset;
     const imageX = isConvex ? -sPrima : sPrima;
 
     const drawMirror = () => {

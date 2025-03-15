@@ -1,5 +1,3 @@
-import useSimulationStore from "./hooks/useSimulationStore";
-
 export const getCanvasXCenter = () => 1280 / 2;
 export const getCanvasYCenter = () => 720 / 2;
 
