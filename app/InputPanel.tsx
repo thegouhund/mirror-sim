@@ -6,16 +6,19 @@ const InputPanel = () => {
   const {
     objectX,
     setObjectX,
-    objectHeight,
-    setObjectHeight,
+    objectHeightMultiplier,
+    setObjectHeightMultiplier,
     focalPoint,
     setFocalPoint,
+    isConvex,
+    setIsConvex,
     showLightRay,
     setShowLightRay,
     canvasWidth,
     showLabel,
     setShowLabel,
   } = useSimulationStore();
+
   return (
     <div className="w-full p-4 bg-white border rounded-lg shadow-md ">
       {/* Left Side - Object Distance & Focal Length */}
@@ -67,17 +70,20 @@ const InputPanel = () => {
             <p>Object Height:</p>
             <input
               type="text"
-              value={objectHeight}
-              onChange={(e) => setObjectHeight(parseInt(e.target.value) || 0)}
+              value={objectHeightMultiplier}
+              onChange={(e) =>
+                setObjectHeightMultiplier(parseInt(e.target.value) || 0)
+              }
               className="w-14 p-1 border rounded focus:outline-none text-center"
             />
             <p>Units</p>
           </div>
           <Slider
-            min={-canvasWidth}
-            max={canvasWidth}
-            value={[objectHeight]}
-            onValueChange={(value) => setObjectHeight(value[0])}
+            min={-2}
+            max={2}
+            step={0.05}
+            value={[objectHeightMultiplier]}
+            onValueChange={(value) => setObjectHeightMultiplier(value[0])}
             className="w-full"
           />
           <div className="flex gap-1 items-center">
@@ -94,6 +100,14 @@ const InputPanel = () => {
               defaultChecked={true}
               checked={showLabel}
               onCheckedChange={(checked) => setShowLabel(checked)}
+            />
+          </div>
+          <div className="flex gap-1 items-center">
+            <label>Convex or Concave</label>
+            <Switch
+              defaultChecked={false}
+              checked={isConvex}
+              onCheckedChange={(checked) => setIsConvex(checked)}
             />
           </div>
         </div>

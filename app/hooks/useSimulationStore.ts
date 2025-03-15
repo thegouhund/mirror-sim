@@ -3,10 +3,13 @@ import { create } from "zustand";
 type SimulationState = {
   objectX: number;
   setObjectX: (value: number) => void;
-  objectHeight: number;
-  setObjectHeight: (value: number) => void;
+  objectHeightMultiplier: number;
+  setObjectHeightMultiplier: (value: number) => void;
   focalPoint: number;
   setFocalPoint: (value: number) => void;
+
+  isConvex: boolean;
+  setIsConvex: (value: boolean) => void;
   showLightRay: boolean;
   setShowLightRay: (value: boolean) => void;
   showLabel: boolean;
@@ -17,12 +20,15 @@ type SimulationState = {
 };
 
 const useSimulationStore = create<SimulationState>((set) => ({
-  objectX: -150,
+  objectX: -350,
   setObjectX: (value) => set({ objectX: value }),
-  objectHeight: 150,
-  setObjectHeight: (value) => set({ objectHeight: value }),
+  objectHeightMultiplier: 1,
+  setObjectHeightMultiplier: (value) => set({ objectHeightMultiplier: value }),
   focalPoint: -150,
   setFocalPoint: (value) => set({ focalPoint: value }),
+
+  isConvex: false,
+  setIsConvex: (value) => set({ isConvex: value }),
   showLightRay: true,
   setShowLightRay: (value) => set({ showLightRay: value }),
   showLabel: true,
