@@ -5,6 +5,7 @@ import coords from "./data.json";
 import {
   drawCircle,
   drawLine,
+  drawLineInfinite,
   drawText,
   getCanvasXCenter,
   getCanvasYCenter,
@@ -135,11 +136,19 @@ export default function MirrorSimulation() {
       const shadowTop: Coords = { x: imageX, y: objectTop.y * M };
 
       drawLine(ctx, objectTop.x, objectTop.y, 0, objectTop.y, "red", 1);
-      drawLine(ctx, 0, objectTop.y, shadowTop.x, shadowTop.y, "red", 1);
+      drawLineInfinite(ctx, 0, objectTop.y, shadowTop.x, shadowTop.y, "red", 1);
       drawLine(ctx, objectTop.x, objectTop.y, 0, shadowTop.y, "green", 1);
-      drawLine(ctx, 0, shadowTop.y, shadowTop.x, shadowTop.y, "green", 1);
+      drawLineInfinite(
+        ctx,
+        0,
+        shadowTop.y,
+        shadowTop.x,
+        shadowTop.y,
+        "green",
+        1
+      );
       if (isConvex)
-        drawLine(
+        drawLineInfinite(
           ctx,
           objectTop.x,
           objectTop.y,
