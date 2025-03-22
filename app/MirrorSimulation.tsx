@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
-import coords from "./data.json";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import objects from "./data.json";
 import {
   drawCircle,
   drawLine,
@@ -12,6 +12,7 @@ import {
 } from "./Helper";
 import useSimulationStore from "./hooks/useSimulationStore";
 import InputPanel from "./InputPanel";
+import { ObjectSelect } from "./ObjectSelect";
 
 export interface Coords {
   x: number;
@@ -21,6 +22,7 @@ export interface Coords {
 export default function MirrorSimulation() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const {
+    objectName,
     objectX,
     objectHeightMultiplier,
     focalPoint,
@@ -32,10 +34,25 @@ export default function MirrorSimulation() {
     isConvex,
   } = useSimulationStore();
 
-  const minY = Math.min(...coords.map((coord) => coord.Y));
-  const maxY = Math.max(...coords.map((coord) => coord.Y));
+  const [maxY, setMaxY] = useState<number | null>(null);
+  const [minY, setMinY] = useState<number | null>(null);
+
+  const coords = useMemo(
+    () => objects.find((object) => object.name === objectName)?.coords,
+    [objectName]
+  );
+
+  useEffect(() => {
+    if (coords) {
+      setMinY(Math.min(...coords.map((coord) => coord.Y)));
+      setMaxY(Math.max(...coords.map((coord) => coord.Y)));
+    }
+  }, [coords, objectName]);
 
   const draw = useCallback(() => {
+    const coords = objects.find((object) => object.name == objectName)?.coords;
+    if (!coords || !minY || !maxY) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -81,19 +98,29 @@ export default function MirrorSimulation() {
     };
 
     const drawInfo = () => {
-      ctx.fillStyle = "black";
+      const offsetY = 50;
+      const offsetX = -10;
       ctx.font = "14px Arial";
-      ctx.fillText(`${canvasWidth}x${canvasHeight}`, canvasWidth - 80, 30);
       ctx.fillText("(0,0)", getCanvasXCenter() + 2, getCanvasYCenter() - 5);
 
+      ctx.textAlign = "right";
+      ctx.fillText(`${canvasWidth}x${canvasHeight}`, offsetX + canvasWidth, 30);
       ctx.fillText(
         `
       Image Distance: ${Math.abs(sPrima).toFixed(1)} units`,
-        -8,
-        30
+        offsetX + canvasWidth,
+        0 + offsetY
       );
-      ctx.fillText(`Magnification: ${Math.abs(M).toFixed(2)}×`, 20, 50);
-      ctx.fillText(`Image Type: ${sPrima > 0 ? "Virtual" : "Real"}`, 20, 70);
+      ctx.fillText(
+        `Magnification: ${Math.abs(M).toFixed(2)}x`,
+        offsetX + canvasWidth,
+        20 + offsetY
+      );
+      ctx.fillText(
+        `Image Type: ${sPrima > 0 ? "Virtual" : "Real"}`,
+        offsetX + canvasWidth,
+        40 + offsetY
+      );
     };
 
     const drawObject = () => {
@@ -168,7 +195,7 @@ export default function MirrorSimulation() {
     const drawMirrorVertex = () => {
       drawCircle(ctx, focalPoint * 2, getCanvasYCenter(), 5, "purple");
       if (isConvex)
-        drawCircle(ctx, -focalPoint * 2, getCanvasYCenter(), 5, "green");
+        drawCircle(ctx, -focalPoint * 2, getCanvasYCenter(), 5, "purple");
     };
 
     drawInfo();
@@ -196,6 +223,10 @@ export default function MirrorSimulation() {
       }
     }
   }, [
+    coords,
+    maxY,
+    minY,
+    objectName,
     objectX,
     objectHeightMultiplier,
     focalPoint,
@@ -209,7 +240,8 @@ export default function MirrorSimulation() {
   }, [draw]);
 
   return (
-    <div className="flex flex-col gap-6 my-2">
+    <div className="flex flex-col gap-6 my-2 relative">
+      <ObjectSelect />
       <canvas
         ref={canvasRef}
         width={canvasWidth}

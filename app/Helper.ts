@@ -1,6 +1,6 @@
 export const getCanvasXCenter = () => 1280 / 2;
 export const getCanvasYCenter = () => 720 / 2;
-const max = 2000
+const max = 8000;
 
 export const drawLine = (
   ctx: CanvasRenderingContext2D,
@@ -92,6 +92,8 @@ export const drawText = (
   y: number,
   color = "black"
 ) => {
+  ctx.textAlign = "left";
+  ctx.font = "14px Arial";
   ctx.fillStyle = color;
   ctx.fillText(text, x + getCanvasXCenter(), -y + getCanvasYCenter());
 };

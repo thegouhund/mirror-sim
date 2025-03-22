@@ -1,5 +1,7 @@
+import { RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup } from "@radix-ui/react-radio-group";
 import useSimulationStore from "./hooks/useSimulationStore";
 
 const InputPanel = () => {
@@ -10,7 +12,6 @@ const InputPanel = () => {
     setObjectHeightMultiplier,
     focalPoint,
     setFocalPoint,
-    isConvex,
     setIsConvex,
     showLightRay,
     setShowLightRay,
@@ -102,13 +103,21 @@ const InputPanel = () => {
               onCheckedChange={(checked) => setShowLabel(checked)}
             />
           </div>
-          <div className="flex gap-1 items-center">
-            <label>Convex or Concave</label>
-            <Switch
-              defaultChecked={false}
-              checked={isConvex}
-              onCheckedChange={(checked) => setIsConvex(checked)}
-            />
+          <div className="flex items-center ">
+            <RadioGroup
+              defaultValue="concave"
+              className="flex gap-4"
+              onValueChange={(value) => setIsConvex(value === "convex")}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="concave" id="r2" />
+                <label htmlFor="r2">Concave Mirror</label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="convex" id="r3" />
+                <label htmlFor="r3">Convex Lens</label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
       </div>

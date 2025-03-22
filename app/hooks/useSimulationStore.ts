@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
 type SimulationState = {
+  objectName: string;
+  setObjectName: (value: string) => void;
   objectX: number;
   setObjectX: (value: number) => void;
   objectHeightMultiplier: number;
@@ -20,13 +22,14 @@ type SimulationState = {
 };
 
 const useSimulationStore = create<SimulationState>((set) => ({
+  objectName: "spider-man",
+  setObjectName: (value) => set({ objectName: value }),
   objectX: -350,
   setObjectX: (value) => set({ objectX: value }),
   objectHeightMultiplier: 1,
   setObjectHeightMultiplier: (value) => set({ objectHeightMultiplier: value }),
   focalPoint: -150,
   setFocalPoint: (value) => set({ focalPoint: value }),
-
   isConvex: false,
   setIsConvex: (value) => set({ isConvex: value }),
   showLightRay: true,
