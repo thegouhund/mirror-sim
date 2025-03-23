@@ -18,7 +18,6 @@ type SimulationState = {
   setShowLabel: (value: boolean) => void;
   canvasWidth: number;
   canvasHeight: number;
-  objectYOffset: number;
 };
 
 const useSimulationStore = create<SimulationState>((set) => ({
@@ -38,7 +37,6 @@ const useSimulationStore = create<SimulationState>((set) => ({
   setShowLabel: (value) => set({ showLabel: value }),
   canvasWidth: 1280,
   canvasHeight: 720,
-  objectYOffset: 210,
 }));
 
 export default useSimulationStore;

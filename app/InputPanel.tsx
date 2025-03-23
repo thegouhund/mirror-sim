@@ -22,21 +22,36 @@ const InputPanel = () => {
 
   return (
     <div className="w-full p-4 bg-white border rounded-lg shadow-md ">
-      {/* Left Side - Object Distance & Focal Length */}
       <h2 className="text-xl font-semibold">Simulation Controls</h2>
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-4">
-          {/* Object Distance */}
           <div className="flex gap-2 items-center">
             <p>Object Distance:</p>
+
+            <button
+              onClick={() => setObjectX(objectX - 1)}
+              className="px-2 py-1 border rounded bg-gray-200 hover:bg-gray-300"
+            >
+              -
+            </button>
+
             <input
               type="text"
               value={objectX}
               onChange={(e) => setObjectX(parseInt(e.target.value) || 0)}
               className="w-14 p-1 border rounded focus:outline-none text-center"
             />
+
+            <button
+              onClick={() => setObjectX(objectX + 1)}
+              className="px-2 py-1 border rounded bg-gray-200 hover:bg-gray-300"
+            >
+              +
+            </button>
+
             <p>Units</p>
           </div>
+
           <Slider
             min={-canvasWidth}
             max={canvasWidth}
@@ -45,7 +60,6 @@ const InputPanel = () => {
             className="w-full"
           />
 
-          {/* Focal Length */}
           <div className="flex gap-2 items-center">
             <p>Focal Length:</p>
             <input
@@ -65,7 +79,6 @@ const InputPanel = () => {
           />
         </div>
 
-        {/* Right Side - Object Height */}
         <div className="flex flex-col gap-4">
           <div className="flex gap-2 items-center">
             <p>Object Height:</p>

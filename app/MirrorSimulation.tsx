@@ -29,7 +29,6 @@ export default function MirrorSimulation() {
     showLightRay,
     canvasWidth,
     canvasHeight,
-    objectYOffset,
     showLabel,
     isConvex,
   } = useSimulationStore();
@@ -64,6 +63,12 @@ export default function MirrorSimulation() {
     const M = -sPrima / objectX;
     // const hPrima = M * objectYOffset;
     const imageX = isConvex ? -sPrima : sPrima;
+    const objectTop: Coords = {
+      x: objectX,
+      y: (maxY - minY) * objectHeightMultiplier,
+    };
+
+    const imageTop: Coords = { x: imageX, y: objectTop.y * M };
 
     const drawMirror = () => {
       ctx.beginPath();
@@ -101,6 +106,7 @@ export default function MirrorSimulation() {
       const offsetY = 50;
       const offsetX = -10;
       ctx.font = "14px Arial";
+      ctx.fillStyle = "black";
       ctx.fillText("(0,0)", getCanvasXCenter() + 2, getCanvasYCenter() - 5);
 
       ctx.textAlign = "right";
@@ -156,34 +162,43 @@ export default function MirrorSimulation() {
     };
 
     const drawLightRays = () => {
-      const objectTop: Coords = {
-        x: objectX,
-        y: (maxY - minY) * objectHeightMultiplier,
-      };
-      const shadowTop: Coords = { x: imageX, y: objectTop.y * M };
+      console.log(sPrima);
+
+      if (objectX >= focalPoint) {
+        if (isConvex) {
+          drawLineInfinite(ctx, 0, objectTop.y, -focalPoint, 0, "red", 1);
+          drawLineInfinite(ctx, objectTop.x, objectTop.y, 0, 0, "blue", 1);
+        } else {
+          drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1);
+          drawLineInfinite(ctx, focalPoint, 0, 0, objectTop.y, "red", 1);
+        }
+        drawLineInfinite(
+          ctx,
+          0,
+          imageTop.y,
+          -imageTop.x,
+          imageTop.y,
+          "green",
+          1
+        );
+      }
 
       drawLine(ctx, objectTop.x, objectTop.y, 0, objectTop.y, "red", 1);
-      drawLineInfinite(ctx, 0, objectTop.y, shadowTop.x, shadowTop.y, "red", 1);
-      drawLine(ctx, objectTop.x, objectTop.y, 0, shadowTop.y, "green", 1);
-      drawLineInfinite(
-        ctx,
-        0,
-        shadowTop.y,
-        shadowTop.x,
-        shadowTop.y,
-        "green",
-        1
-      );
-      if (isConvex)
+      drawLineInfinite(ctx, 0, objectTop.y, imageTop.x, imageTop.y, "red", 1);
+      drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
+      drawLineInfinite(ctx, 0, imageTop.y, imageTop.x, imageTop.y, "green", 1);
+
+      if (isConvex) {
         drawLineInfinite(
           ctx,
           objectTop.x,
           objectTop.y,
-          shadowTop.x,
-          shadowTop.y,
-          "green",
+          imageTop.x,
+          imageTop.y,
+          "blue",
           1
         );
+      }
     };
 
     const drawFocalPoint = () => {
@@ -206,12 +221,12 @@ export default function MirrorSimulation() {
     drawMirrorVertex();
     if (showLightRay) drawLightRays();
     if (showLabel) {
-      drawText(ctx, "Object", objectX - 15, objectYOffset - 200);
+      drawText(ctx, "Object", objectTop.x - 20, objectTop.y);
       drawText(
         ctx,
         sPrima <= 0 ? "Real Image" : "Virtual Image",
-        imageX - 25,
-        objectYOffset - 200
+        imageTop.x - 35,
+        imageTop.y
       );
 
       drawText(ctx, "F", focalPoint - 3, -15);
