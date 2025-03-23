@@ -32,7 +32,7 @@ export function ObjectSelect() {
                   {toTitleCase(object.name)}
                   <Image
                     src={`/${object.name}.png`}
-                    alt="ds"
+                    alt="img"
                     width={20}
                     height={20}
                   />
