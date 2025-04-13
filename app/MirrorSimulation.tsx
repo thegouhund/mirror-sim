@@ -260,16 +260,16 @@ export default function MirrorSimulation() {
           1,
           objectX
         );
-        drawLineInfinite(
-          ctx,
-          0,
-          imageTop.y,
-          -imageTop.x,
-          imageTop.y,
-          "green",
-          1,
-          objectX
-        );
+        // drawLineInfinite(
+        //   ctx,
+        //   0,
+        //   imageTop.y,
+        //   -imageTop.x,
+        //   imageTop.y,
+        //   "green",
+        //   1,
+        //   objectX
+        // );
         return;
       }
 
