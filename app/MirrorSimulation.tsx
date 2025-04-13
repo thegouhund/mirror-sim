@@ -59,7 +59,8 @@ export default function MirrorSimulation() {
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    const sPrima = 1 / (1 / focalPoint - 1 / objectX);
+    let sPrima = 1 / (1 / focalPoint - 1 / objectX);
+    if (isConvex && objectX > 0) sPrima = 1 / (1 / -focalPoint - 1 / objectX);
     const M = -sPrima / objectX;
     // const hPrima = M * objectYOffset;
     const imageX = isConvex ? -sPrima : sPrima;
@@ -143,6 +144,8 @@ export default function MirrorSimulation() {
           );
         }
       });
+      drawCircle(ctx, objectTop.x, objectTop.y, 4, "purple");
+      drawLine(ctx, objectTop.x, objectTop.y, objectTop.x, 0, "black");
     };
 
     const drawObjectImage = () => {
@@ -159,34 +162,23 @@ export default function MirrorSimulation() {
           );
         }
       });
+      drawCircle(ctx, imageTop.x, imageTop.y, 4, "purple");
+      drawLine(ctx, imageTop.x, imageTop.y, imageTop.x, 0, "black");
     };
 
     const drawLightRays = () => {
-      console.log(sPrima);
-
-      if (objectX >= focalPoint) {
-        if (isConvex) {
-          drawLineInfinite(ctx, 0, objectTop.y, -focalPoint, 0, "red", 1);
-          drawLineInfinite(ctx, objectTop.x, objectTop.y, 0, 0, "blue", 1);
-        } else {
-          drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1);
-          drawLineInfinite(ctx, focalPoint, 0, 0, objectTop.y, "red", 1);
-        }
-        drawLineInfinite(
-          ctx,
-          0,
-          imageTop.y,
-          -imageTop.x,
-          imageTop.y,
-          "green",
-          1
-        );
-      }
-
+      // Draw base ray that is common in all cases
       drawLine(ctx, objectTop.x, objectTop.y, 0, objectTop.y, "red", 1);
-      drawLineInfinite(ctx, 0, objectTop.y, imageTop.x, imageTop.y, "red", 1);
-      drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
-      drawLineInfinite(ctx, 0, imageTop.y, imageTop.x, imageTop.y, "green", 1);
+      drawLineInfinite(
+        ctx,
+        0,
+        objectTop.y,
+        imageTop.x,
+        imageTop.y,
+        "red",
+        1,
+        objectX
+      );
 
       if (isConvex) {
         drawLineInfinite(
@@ -196,21 +188,134 @@ export default function MirrorSimulation() {
           imageTop.x,
           imageTop.y,
           "blue",
-          1
+          1,
+          objectX
         );
+        drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
+        drawLineInfinite(
+          ctx,
+          0,
+          imageTop.y,
+          imageTop.x,
+          imageTop.y,
+          "green",
+          1,
+          objectX
+        );
+
+        if (objectX < focalPoint) return;
+
+        drawLineInfinite(
+          ctx,
+          objectTop.x,
+          objectTop.y,
+          0,
+          imageTop.y,
+          "green",
+          1,
+          objectX
+        );
+        drawLineInfinite(
+          ctx,
+          0,
+          objectTop.y,
+          -focalPoint,
+          0,
+          "red",
+          1,
+          objectX
+        );
+        drawLineInfinite(
+          ctx,
+          objectTop.x,
+          objectTop.y,
+          0,
+          0,
+          "blue",
+          1,
+          objectX
+        );
+        drawLineInfinite(
+          ctx,
+          0,
+          imageTop.y,
+          imageTop.x,
+          imageTop.y,
+          "green",
+          1,
+          objectX
+        );
+        return;
       }
+
+      if (objectX < focalPoint) {
+        drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
+        drawLineInfinite(
+          ctx,
+          0,
+          imageTop.y,
+          imageTop.x,
+          imageTop.y,
+          "green",
+          1,
+          objectX
+        );
+        drawLineInfinite(
+          ctx,
+          0,
+          imageTop.y,
+          -imageTop.x,
+          imageTop.y,
+          "green",
+          1,
+          objectX
+        );
+        return;
+      }
+
+      // For concave mirror when objectX >= focalPoint
+      drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1, objectX);
+      drawLineInfinite(ctx, focalPoint, 0, 0, objectTop.y, "red", 1, objectX);
+      drawLineInfinite(
+        ctx,
+        focalPoint * 2,
+        0,
+        objectTop.x,
+        objectTop.y,
+        "green",
+        1,
+        objectX
+      );
+      drawLineInfinite(
+        ctx,
+        objectTop.x,
+        objectTop.y,
+        focalPoint * 2,
+        0,
+        "green",
+        1,
+        objectX
+      );
+      drawLineInfinite(
+        ctx,
+        objectTop.x,
+        objectTop.y,
+        imageTop.x,
+        imageTop.y,
+        "green",
+        1,
+        objectX
+      );
     };
 
     const drawFocalPoint = () => {
-      drawCircle(ctx, focalPoint, getCanvasYCenter(), 5, "green");
-      if (isConvex)
-        drawCircle(ctx, -focalPoint, getCanvasYCenter(), 5, "green");
+      drawCircle(ctx, focalPoint, 0, 5, "green");
+      if (isConvex) drawCircle(ctx, -focalPoint, 0, 5, "green");
     };
 
     const drawMirrorVertex = () => {
-      drawCircle(ctx, focalPoint * 2, getCanvasYCenter(), 5, "purple");
-      if (isConvex)
-        drawCircle(ctx, -focalPoint * 2, getCanvasYCenter(), 5, "purple");
+      drawCircle(ctx, focalPoint * 2, 0, 5, "purple");
+      if (isConvex) drawCircle(ctx, -focalPoint * 2, 0, 5, "purple");
     };
 
     drawInfo();
