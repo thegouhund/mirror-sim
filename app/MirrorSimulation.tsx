@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import objects from "./data.json";
 import {
+  dottedDrawLine,
   drawCircle,
   drawLine,
   drawLineInfinite,
@@ -23,6 +24,7 @@ export default function MirrorSimulation() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const {
     objectName,
+    setObjectName,
     objectX,
     objectHeightMultiplier,
     focalPoint,
@@ -131,124 +133,166 @@ export default function MirrorSimulation() {
     };
 
     const drawObject = () => {
-      coords.forEach((coord, i) => {
-        if (i < coords.length - 1) {
-          drawLine(
-            ctx,
-            objectX + coord.X,
-            (coord.Y - minY) * objectHeightMultiplier,
-            objectX + coords[i + 1].X,
-            (coords[i + 1].Y - minY) * objectHeightMultiplier,
-            "red",
-            3
-          );
-        }
-      });
-      drawCircle(ctx, objectTop.x, objectTop.y, 4, "purple");
-      drawLine(ctx, objectTop.x, objectTop.y, objectTop.x, 0, "black");
+      const filteredCoords = coords.filter((c) => c.X !== null && c.Y !== null);
+      const minY = Math.min(...filteredCoords.map((c) => c.Y));
+
+      for (let i = 0; i < coords.length - 1; i++) {
+        const curr = coords[i];
+        const next = coords[i + 1];
+
+        // Jika salah satu titik null, berarti garis tidak terhubung
+        if (curr.X === null || next.X === null) continue;
+
+        drawLine(
+          ctx,
+          objectX + curr.X,
+          (curr.Y - minY) * objectHeightMultiplier,
+          objectX + next.X,
+          (next.Y - minY) * objectHeightMultiplier,
+          "red",
+          3
+        );
+        drawCircle(ctx, objectTop.x, objectTop.y, 4, "purple");
+        drawLine(ctx, objectTop.x, objectTop.y, objectTop.x, 0, "black");
+      }
     };
 
     const drawObjectImage = () => {
-      coords.forEach((coord, i) => {
-        if (i < coords.length - 1) {
-          drawLine(
-            ctx,
-            imageX + coord.X * M,
-            (coord.Y - minY) * objectHeightMultiplier * M,
-            imageX + coords[i + 1].X * M,
-            (coords[i + 1].Y - minY) * objectHeightMultiplier * M,
-            "blue",
-            3
-          );
-        }
-      });
-      drawCircle(ctx, imageTop.x, imageTop.y, 4, "purple");
-      drawLine(ctx, imageTop.x, imageTop.y, imageTop.x, 0, "black");
+      // coords.forEach((coord, i) => {
+      //   if (i < coords.length - 1) {
+      //     drawLine(
+      //       ctx,
+      //       imageX + coord.X * M,
+      //       (coord.Y - minY) * objectHeightMultiplier * M,
+      //       imageX + coords[i + 1].X * M,
+      //       (coords[i + 1].Y - minY) * objectHeightMultiplier * M,
+      //       "blue",
+      //       3
+      //     );
+      //   }
+      // });
+      const filteredCoords = coords.filter((c) => c.X !== null && c.Y !== null);
+      const minY = Math.min(...filteredCoords.map((c) => c.Y));
+
+      for (let i = 0; i < coords.length - 1; i++) {
+        const curr = coords[i];
+        const next = coords[i + 1];
+
+        // Jika salah satu titik null, berarti garis tidak terhubung
+        if (curr.X === null || next.X === null) continue;
+
+        drawLine(
+          ctx,
+          imageX + curr.X * M,
+          (curr.Y - minY) * objectHeightMultiplier * M,
+          imageX + next.X * M,
+          (next.Y - minY) * objectHeightMultiplier * M,
+          "blue",
+          3
+        );
+        drawCircle(ctx, imageTop.x, imageTop.y, 4, "purple");
+        drawLine(ctx, imageTop.x, imageTop.y, imageTop.x, 0, "black");
+      }
     };
 
     const drawLightRays = () => {
       // Draw base ray that is common in all cases
       drawLine(ctx, objectTop.x, objectTop.y, 0, objectTop.y, "red", 1);
-      drawLineInfinite(
-        ctx,
-        0,
-        objectTop.y,
-        imageTop.x,
-        imageTop.y,
-        "red",
-        1,
-        objectX
-      );
 
       if (isConvex) {
+        // drawLineInfinite(
+        //   ctx,
+        //   objectTop.x,
+        //   objectTop.y,
+        //   imageTop.x,
+        //   imageTop.y,
+        //   "blue",
+        //   1,
+        //   objectX
+        // );
         drawLineInfinite(
           ctx,
           objectTop.x,
           objectTop.y,
-          imageTop.x,
-          imageTop.y,
+          0,
+          0,
           "blue",
           1,
           objectX
         );
-        drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
-        drawLineInfinite(
-          ctx,
-          0,
-          imageTop.y,
-          imageTop.x,
-          imageTop.y,
-          "green",
-          1,
-          objectX
-        );
 
+        if (objectX < 0) {
+          drawLineInfinite(
+            ctx,
+            0,
+            imageTop.y,
+            1,
+            imageTop.y,
+            "green",
+            1,
+            objectX
+          );
+          drawLineInfinite(
+            ctx,
+            0,
+            objectTop.y,
+            -focalPoint,
+            0,
+            "red",
+            1,
+            objectX
+          );
+          drawLineInfinite(
+            ctx,
+            0,
+            imageTop.y,
+            1,
+            imageTop.y,
+            "green",
+            1,
+            objectX
+          );
+          drawLineInfinite(
+            ctx,
+            0,
+            objectTop.y,
+            -focalPoint,
+            0,
+            "red",
+            1,
+            objectX
+          );
+        }
+        drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
         if (objectX < focalPoint) return;
 
-        drawLineInfinite(
+        // drawLineInfinite(
+        //   ctx,
+        //   objectTop.x,
+        //   objectTop.y,
+        //   0,
+        //   0,
+        //   "blue",
+        //   1,
+        //   objectX
+        // );
+        dottedDrawLine(ctx, 0, imageTop.y, imageTop.x, imageTop.y, "green", 1);
+        dottedDrawLine(ctx, 0, objectTop.y, imageTop.x, imageTop.y, "red", 1);
+        dottedDrawLine(
           ctx,
           objectTop.x,
           objectTop.y,
-          0,
-          imageTop.y,
-          "green",
-          1,
-          objectX
-        );
-        drawLineInfinite(
-          ctx,
-          0,
-          objectTop.y,
-          -focalPoint,
-          0,
-          "red",
-          1,
-          objectX
-        );
-        drawLineInfinite(
-          ctx,
-          objectTop.x,
-          objectTop.y,
-          0,
-          0,
-          "blue",
-          1,
-          objectX
-        );
-        drawLineInfinite(
-          ctx,
-          0,
-          imageTop.y,
           imageTop.x,
           imageTop.y,
-          "green",
-          1,
-          objectX
+          "blue",
+          1
         );
+
         return;
       }
 
       if (objectX < focalPoint) {
+        drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1, objectX);
         drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
         drawLineInfinite(
           ctx,
@@ -260,20 +304,10 @@ export default function MirrorSimulation() {
           1,
           objectX
         );
-        // drawLineInfinite(
-        //   ctx,
-        //   0,
-        //   imageTop.y,
-        //   -imageTop.x,
-        //   imageTop.y,
-        //   "green",
-        //   1,
-        //   objectX
-        // );
         return;
       }
-
       // For concave mirror when objectX >= focalPoint
+      drawLineInfinite(ctx, 0, imageTop.y, focalPoint, 0, "blue", 1, objectX);
       drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1, objectX);
       drawLineInfinite(ctx, focalPoint, 0, 0, objectTop.y, "red", 1, objectX);
       drawLineInfinite(
@@ -306,6 +340,16 @@ export default function MirrorSimulation() {
         1,
         objectX
       );
+      drawLineInfinite(
+        ctx,
+        -canvasWidth,
+        imageTop.y,
+        0,
+        imageTop.y,
+        "blue",
+        1,
+        objectX
+      );
     };
 
     const drawFocalPoint = () => {
@@ -318,14 +362,7 @@ export default function MirrorSimulation() {
       if (isConvex) drawCircle(ctx, -focalPoint * 2, 0, 5, "purple");
     };
 
-    drawInfo();
-    drawMirror();
-    drawObject();
-    drawObjectImage();
-    drawFocalPoint();
-    drawMirrorVertex();
-    if (showLightRay) drawLightRays();
-    if (showLabel) {
+    const drawLabel = () => {
       drawText(ctx, "Object", objectTop.x - 20, objectTop.y);
       drawText(
         ctx,
@@ -338,10 +375,22 @@ export default function MirrorSimulation() {
       drawText(ctx, "2F", focalPoint * 2 - 3, -15);
 
       if (isConvex) {
-        drawText(ctx, "F", -focalPoint - 3, -15);
-        drawText(ctx, "2F", -focalPoint * 2 - 3, -15);
+        drawText(ctx, "F'", -focalPoint - 3, -15);
+        drawText(ctx, "2F'", -focalPoint * 2 - 3, -15);
       }
-    }
+    };
+
+    if (objectName === "spider-man" && objectX > 0) setObjectName("frog");
+    if (objectName === "frog" && objectX < 0) setObjectName("spider-man");
+
+    drawInfo();
+    drawMirror();
+    drawObject();
+    drawObjectImage();
+    drawFocalPoint();
+    drawMirrorVertex();
+    if (showLightRay) drawLightRays();
+    if (showLabel) drawLabel();
   }, [
     coords,
     maxY,

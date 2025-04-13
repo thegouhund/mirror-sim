@@ -62,8 +62,11 @@ export const drawLineInfinite = (
   ctx.beginPath();
 
   for (let i = 0; i < max; i++) {
-    
-    if (objectX > 0 ? x + getCanvasXCenter() > getCanvasXCenter() : x + getCanvasXCenter() < getCanvasXCenter()) {
+    if (
+      objectX > 0
+        ? x + getCanvasXCenter() > getCanvasXCenter()
+        : x + getCanvasXCenter() < getCanvasXCenter()
+    ) {
       ctx.fillRect(
         x + getCanvasXCenter(),
         -y + getCanvasYCenter(),
@@ -90,6 +93,74 @@ export const drawLineInfinite = (
     // ) {
     //   break;
     // }
+  }
+};
+
+export const drawLineInfinite1 = (
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  ex: number,
+  ey: number,
+  color = "black",
+  lineWidth = 1
+) => {
+  const dx = ex - sx;
+  const dy = ey - sy;
+  const xIncrement = dx / Math.sqrt(dx * dx + dy * dy);
+  const yIncrement = dy / Math.sqrt(dx * dx + dy * dy);
+
+  let x = sx;
+  let y = sy;
+
+  ctx.fillStyle = color;
+  ctx.beginPath();
+
+  for (let i = 0; i < max; i++) {
+    ctx.fillRect(
+      x + getCanvasXCenter(),
+      -y + getCanvasYCenter(),
+      lineWidth,
+      lineWidth
+    );
+
+    x += xIncrement;
+    y += yIncrement;
+    // if (x < -1280 || x > 1280 || y < -1280 || y > 1280) break;
+  }
+};
+
+export const dottedDrawLine = (
+  ctx: CanvasRenderingContext2D,
+  sx: number,
+  sy: number,
+  ex: number,
+  ey: number,
+  color = "black",
+  lineWidth = 1,
+  dotSpacing = 5
+) => {
+  const dx = ex - sx;
+  const dy = ey - sy;
+  const xIncrement = dx / Math.sqrt(dx * dx + dy * dy);
+  const yIncrement = dy / Math.sqrt(dx * dx + dy * dy);
+
+  let x = sx;
+  let y = sy;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+
+  for (let i = 0; i < max; i++) {
+    if (i % dotSpacing === 0) {
+      ctx.fillRect(
+        x + getCanvasXCenter(),
+        -y + getCanvasYCenter(),
+        lineWidth,
+        lineWidth
+      );
+    }
+    x += xIncrement;
+    y += yIncrement;
   }
 };
 
