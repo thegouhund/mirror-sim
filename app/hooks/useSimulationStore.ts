@@ -21,7 +21,7 @@ type SimulationState = {
 };
 
 const useSimulationStore = create<SimulationState>((set) => ({
-  objectName: "spider-man",
+  objectName: "triangle",
   setObjectName: (value) => set({ objectName: value }),
   objectX: -350,
   setObjectX: (value) => set({ objectX: value }),
