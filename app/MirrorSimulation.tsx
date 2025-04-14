@@ -45,8 +45,9 @@ export default function MirrorSimulation() {
 
   useEffect(() => {
     if (coords) {
-      setMinY(Math.min(...coords.map((coord) => coord.Y)));
-      setMaxY(Math.max(...coords.map((coord) => coord.Y)));
+      const filteredCoords = coords.filter((coord) => coord.Y !== null);
+      setMinY(Math.min(...filteredCoords.map((coord) => coord.Y as number)));
+      setMaxY(Math.max(...filteredCoords.map((coord) => coord.Y as number)));
     }
   }, [coords, objectName]);
 
@@ -58,19 +59,16 @@ export default function MirrorSimulation() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    let sPrima = 1 / (1 / focalPoint - 1 / objectX);
-    if (isConvex && objectX > 0) sPrima = 1 / (1 / -focalPoint - 1 / objectX);
-    const M = -sPrima / objectX;
-    // const hPrima = M * objectYOffset;
-    const imageX = isConvex ? -sPrima : sPrima;
+    let imageDistance = 1 / (1 / focalPoint - 1 / objectX);
+    if (isConvex && objectX > 0) imageDistance = 1 / (1 / -focalPoint - 1 / objectX);
+    const M = -imageDistance / objectX;
+    const imageX = isConvex ? -imageDistance : imageDistance;
     const objectTop: Coords = {
       x: objectX,
       y: (maxY - minY) * objectHeightMultiplier,
     };
-
     const imageTop: Coords = { x: imageX, y: objectTop.y * M };
 
     const drawMirror = () => {
@@ -116,7 +114,7 @@ export default function MirrorSimulation() {
       ctx.fillText(`${canvasWidth}x${canvasHeight}`, offsetX + canvasWidth, 30);
       ctx.fillText(
         `
-      Image Distance: ${Math.abs(sPrima).toFixed(1)} units`,
+      Image Distance: ${Math.abs(imageDistance).toFixed(1)} units`,
         offsetX + canvasWidth,
         0 + offsetY
       );
@@ -126,7 +124,7 @@ export default function MirrorSimulation() {
         20 + offsetY
       );
       ctx.fillText(
-        `Image Type: ${sPrima > 0 ? "Virtual" : "Real"}`,
+        `Image Type: ${imageDistance > 0 ? "Virtual" : "Real"}`,
         offsetX + canvasWidth,
         40 + offsetY
       );
@@ -140,7 +138,6 @@ export default function MirrorSimulation() {
         const curr = coords[i];
         const next = coords[i + 1];
 
-        // Jika salah satu titik null, berarti garis tidak terhubung
         if (curr.X === null || next.X === null) continue;
 
         drawLine(
@@ -152,25 +149,12 @@ export default function MirrorSimulation() {
           "red",
           3
         );
-        drawCircle(ctx, objectTop.x, objectTop.y, 4, "purple");
-        drawLine(ctx, objectTop.x, objectTop.y, objectTop.x, 0, "black");
       }
+      drawCircle(ctx, objectTop.x, objectTop.y, 4, "purple");
+      drawLine(ctx, objectTop.x, objectTop.y, objectTop.x, 0, "black");
     };
 
     const drawObjectImage = () => {
-      // coords.forEach((coord, i) => {
-      //   if (i < coords.length - 1) {
-      //     drawLine(
-      //       ctx,
-      //       imageX + coord.X * M,
-      //       (coord.Y - minY) * objectHeightMultiplier * M,
-      //       imageX + coords[i + 1].X * M,
-      //       (coords[i + 1].Y - minY) * objectHeightMultiplier * M,
-      //       "blue",
-      //       3
-      //     );
-      //   }
-      // });
       const filteredCoords = coords.filter((c) => c.X !== null && c.Y !== null);
       const minY = Math.min(...filteredCoords.map((c) => c.Y));
 
@@ -178,7 +162,6 @@ export default function MirrorSimulation() {
         const curr = coords[i];
         const next = coords[i + 1];
 
-        // Jika salah satu titik null, berarti garis tidak terhubung
         if (curr.X === null || next.X === null) continue;
 
         drawLine(
@@ -190,15 +173,16 @@ export default function MirrorSimulation() {
           "blue",
           3
         );
-        drawCircle(ctx, imageTop.x, imageTop.y, 4, "purple");
-        drawLine(ctx, imageTop.x, imageTop.y, imageTop.x, 0, "black");
       }
+      drawCircle(ctx, imageTop.x, imageTop.y, 4, "purple");
+      drawLine(ctx, imageTop.x, imageTop.y, imageTop.x, 0, "black");
     };
 
     const drawLightRays = () => {
-      // Draw base ray that is common in all cases
+      // Draw base ray for all cases
       drawLine(ctx, objectTop.x, objectTop.y, 0, objectTop.y, "red", 1);
 
+      // For convex mirror
       if (isConvex) {
         // drawLineInfinite(
         //   ctx,
@@ -291,8 +275,19 @@ export default function MirrorSimulation() {
         return;
       }
 
+      // For concave mirror when objectX < focalPoint
       if (objectX < focalPoint) {
         drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1, objectX);
+        drawLineInfinite(
+          ctx,
+          focalPoint,
+          0,
+          imageTop.x,
+          imageTop.y,
+          "red",
+          1,
+          objectX
+        );
         drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
         drawLineInfinite(
           ctx,
@@ -306,8 +301,21 @@ export default function MirrorSimulation() {
         );
         return;
       }
+
       // For concave mirror when objectX >= focalPoint
-      drawLineInfinite(ctx, 0, imageTop.y, focalPoint, 0, "blue", 1, objectX);
+      if (objectX >= focalPoint) {
+        drawLineInfinite(ctx, 0, imageTop.y, focalPoint, 0, "blue", 1, objectX);
+        drawLineInfinite(
+          ctx,
+          -canvasWidth,
+          imageTop.y,
+          0,
+          imageTop.y,
+          "blue",
+          1,
+          objectX
+        );
+      }
       drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1, objectX);
       drawLineInfinite(ctx, focalPoint, 0, 0, objectTop.y, "red", 1, objectX);
       drawLineInfinite(
@@ -330,26 +338,6 @@ export default function MirrorSimulation() {
         1,
         objectX
       );
-      drawLineInfinite(
-        ctx,
-        objectTop.x,
-        objectTop.y,
-        imageTop.x,
-        imageTop.y,
-        "green",
-        1,
-        objectX
-      );
-      drawLineInfinite(
-        ctx,
-        -canvasWidth,
-        imageTop.y,
-        0,
-        imageTop.y,
-        "blue",
-        1,
-        objectX
-      );
     };
 
     const drawFocalPoint = () => {
@@ -366,7 +354,7 @@ export default function MirrorSimulation() {
       drawText(ctx, "Object", objectTop.x - 20, objectTop.y);
       drawText(
         ctx,
-        sPrima <= 0 ? "Real Image" : "Virtual Image",
+        imageDistance <= 0 ? "Real Image" : "Virtual Image",
         imageTop.x - 35,
         imageTop.y
       );
