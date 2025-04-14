@@ -62,7 +62,8 @@ export default function MirrorSimulation() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     let imageDistance = 1 / (1 / focalPoint - 1 / objectX);
-    if (isConvex && objectX > 0) imageDistance = 1 / (1 / -focalPoint - 1 / objectX);
+    if (isConvex && objectX > 0)
+      imageDistance = 1 / (1 / -focalPoint - 1 / objectX);
     const M = -imageDistance / objectX;
     const imageX = isConvex ? -imageDistance : imageDistance;
     const objectTop: Coords = {
@@ -184,16 +185,7 @@ export default function MirrorSimulation() {
 
       // For convex mirror
       if (isConvex) {
-        // drawLineInfinite(
-        //   ctx,
-        //   objectTop.x,
-        //   objectTop.y,
-        //   imageTop.x,
-        //   imageTop.y,
-        //   "blue",
-        //   1,
-        //   objectX
-        // );
+
         drawLineInfinite(
           ctx,
           objectTop.x,
@@ -250,16 +242,6 @@ export default function MirrorSimulation() {
         drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
         if (objectX < focalPoint) return;
 
-        // drawLineInfinite(
-        //   ctx,
-        //   objectTop.x,
-        //   objectTop.y,
-        //   0,
-        //   0,
-        //   "blue",
-        //   1,
-        //   objectX
-        // );
         dottedDrawLine(ctx, 0, imageTop.y, imageTop.x, imageTop.y, "green", 1);
         dottedDrawLine(ctx, 0, objectTop.y, imageTop.x, imageTop.y, "red", 1);
         dottedDrawLine(
@@ -278,16 +260,19 @@ export default function MirrorSimulation() {
       // For concave mirror when objectX < focalPoint
       if (objectX < focalPoint) {
         drawLineInfinite(ctx, 0, objectTop.y, focalPoint, 0, "red", 1, objectX);
-        drawLineInfinite(
-          ctx,
-          focalPoint,
-          0,
-          imageTop.x,
-          imageTop.y,
-          "red",
-          1,
-          objectX
-        );
+       
+        if (objectX > 0)
+          drawLineInfinite(
+            ctx,
+            0,
+            objectTop.y,
+            imageTop.x,
+            imageTop.y,
+            "red",
+            1,
+            objectX
+          );
+
         drawLine(ctx, objectTop.x, objectTop.y, 0, imageTop.y, "green", 1);
         drawLineInfinite(
           ctx,
