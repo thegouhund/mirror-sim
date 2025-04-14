@@ -11,6 +11,11 @@ export const drawLine = (
   color = "black",
   lineWidth = 1
 ) => {
+  const clamp = (val: number) => Math.max(-max, Math.min(max, val));
+  sx = clamp(sx);
+  sy = clamp(sy);
+  ex = clamp(ex);
+  ey = clamp(ey);
 
   const dx = ex - sx;
   const dy = ey - sy;
